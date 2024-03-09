@@ -3,6 +3,14 @@ const { app, BrowserWindow, ipcMain, nativeTheme } = require('electron')
 const path = require('path');
 const url = require('url');
 const fs = require('fs');
+const minimist = require('minimist');
+
+
+
+const args = minimist(process.argv);
+
+
+
 
 const createEntryWindow = async () => {
     const win = new BrowserWindow({
@@ -131,7 +139,7 @@ const ipcHandlers = {
         // console.dir(url)
         // console.log('fetching url: ' + url);
         return new Promise((resolve, reject) => {
-            console.log('request ', url)
+            // console.log('request ', url)
             fetch(url, {
                 method: 'GET',
                 credentials: 'include',
@@ -142,7 +150,8 @@ const ipcHandlers = {
         });
     },
     'entry::initWindow'() {
-        let vid = process.argv[1];
+        let vid = args.video;
+        if (!vid) vid = process.argv[1];
         if (vid === '.') vid = process.argv[2];
         return { vid };
     },
@@ -208,6 +217,13 @@ const ipcHandlers = {
     },
     'bxplay.playEnded'() {
         globalThis.entryWindow.webContents.send('bxplay.playEnded');
+    },
+    'bxapi.getDispatchAutoOpenOption'() {
+        const p = args.p;
+        return {
+            vid: ipcHandlers['entry::initWindow']().vid,
+            p,
+        };
     },
 };
 

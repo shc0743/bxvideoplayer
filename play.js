@@ -29,15 +29,18 @@ document.body.addEventListener('fullscreenchange', function (ev) {
 
 await new Promise(r => setTimeout(r, 1000));
 const LoadVideoInfo = async function () {
-    globalThis.video_data = null;
-    globalThis.instance_.video_information.title = '正在加载...';
-    globalThis.instance_.video_data2 = {};
     
     const { vid, cid } = await bxplay.getinfo();
+    if (String(globalThis.instance_.cid) === cid && globalThis.current_vid === vid) {
+        return;
+    }
+    globalThis.instance_.video_information.title = '正在加载...';
+    globalThis.video_data = null;
+    globalThis.instance_.video_data2 = {};
 
     try {
         const url = new URL('https://api.bilibili.com/x/web-interface/view');
-        url.searchParams.set(vid.startsWith('BV') ? 'bvid' : 'aid', vid);
+        url.searchParams.set((vid.toUpperCase()).startsWith('BV') ? 'bvid' : 'aid', vid);
         const vdata = await (webrequestapi.get(url.href).then(v => JSON.parse(v)));
         console.log('video data:' , vdata);
         globalThis.video_data = vdata.data;
@@ -45,6 +48,7 @@ const LoadVideoInfo = async function () {
         globalThis.instance_.video_information.title = vdata.data.title;
         globalThis.instance_.video_data2 = vdata.data;
         globalThis.instance_.cid = +cid;
+        globalThis.current_vid = vid;
 
     } catch (error) {
         ElMessage.error('视频信息加载失败: ' + error);

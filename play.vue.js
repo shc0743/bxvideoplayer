@@ -24,7 +24,7 @@ const data = {
             video_information: {},
             video_data2: {},
             video_speed: 1,
-            cid: '',
+            cid_value: '',
             cdata: {},
             isPaused: true,
             playData: {},
@@ -83,6 +83,29 @@ const data = {
                 this.video_volume = value / 100;
                 return true;
             }
+        },
+        cid: {
+            get() { return this.cid_value },
+            set(value) {
+                this.cid_value = value;
+
+                (() => {
+                    for (const i of globalThis.video_data.pages) {
+                        if (i.cid !== this.cid) continue;
+                        this.cdata = i;
+                        if (globalThis.video_data.pages.length > 1) // 只对多P视频显示分P标题
+                            this.video_information.title = `${i.page}P. ${i.part} - ` + this.video_information.title;
+                        this.video_progress = 0;
+                        this.video_progress_total = i.duration;
+
+                        this.prepareVideo();
+                        return;
+                    }
+                    ElMessage.error('视频加载失败：cid不存在')
+                })();
+
+                return true;
+            },
         },
         
     },
@@ -160,7 +183,7 @@ const data = {
             }
         },
         ontick() {
-            if (ticks.get(this) > 10) {
+            if (ticks.get(this) > 5) {
                 this.appControlsActive = false;
             }
         },
@@ -230,19 +253,6 @@ const data = {
     },
 
     watch: {
-        cid() {
-            for (const i of globalThis.video_data.pages) {
-                if (i.cid !== this.cid) continue;
-                this.cdata = i;
-                this.video_information.title = `${i.page}P. ${i.part} - ` + this.video_information.title;
-                this.video_progress = 0;
-                this.video_progress_total = i.duration;
-
-                this.prepareVideo();
-                return;
-            }
-            ElMessage.error('视频加载失败：cid不存在')
-        },
         video_speed() {
             this.setVideoParamters();
         },

@@ -1,3 +1,4 @@
+import { ElMessage } from "./3p/element-plus/index.full.mjs.js";
 
 close_app.onclick = async () => {
     if (!await myconfirm('确定要关掉?')) return;
@@ -22,7 +23,7 @@ bxloginapi.getState().then(isLogged => {
 })
 
 
-let currentPlaying = null;
+let currentPlaying = null, isFirstParse = true;;
 
 
 videoid_input.addEventListener('submit', ev => {
@@ -66,6 +67,19 @@ videoid_input.addEventListener('submit', ev => {
         await myalert('视频解析失败。' + error);
         videolist_content.innerHTML = '';
         openvideo.disabled = !(openvideo.innerText = '打开');
+    }).finally(() => {
+        if (isFirstParse) {
+            isFirstParse = false;
+            bxapi.getDispatchAutoOpenOption().then(({ vid, p } = {}) => {
+                if (vid.toLowerCase().startsWith('av')) vid = vid.substring(2);
+                if (vid !== document.getElementById('vid').value) return;
+                if (!p) return;
+                const cid = globalThis.video_data?.pages[p - 1]?.cid;
+                if (!cid) return ElMessage.error('自动播放参数错误');
+                currentPlaying = cid;
+                bxapi.play(vid, cid);
+            });
+        }
     });
 
 });

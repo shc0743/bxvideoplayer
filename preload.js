@@ -28,7 +28,8 @@ contextBridge.exposeInMainWorld('bxapi', {
     play(vid, cid) { return ipcRenderer.invoke('bxapi.play', vid, cid) },
     web(url) { return ipcRenderer.invoke('bxapi.web', url) },
     autoPlayOptions(newValue = null) { return ipcRenderer.invoke('bxapi.autoPlayOptions', newValue) },
-    switchToEntry() { return ipcRenderer.invoke('bxapi.switchToEntry') },
+    switchToEntry() { return ipcRenderer.invoke('switchToEntry') },
+    getDispatchAutoOpenOption() { return ipcRenderer.invoke('bxapi.getDispatchAutoOpenOption') },
 })
 
 
