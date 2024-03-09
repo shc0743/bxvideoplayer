@@ -22,9 +22,13 @@ bxloginapi.getState().then(isLogged => {
 })
 
 
+let currentPlaying = null;
+
+
 videoid_input.addEventListener('submit', ev => {
     ev.preventDefault();
     videolist_content.innerHTML = '正在加载...';
+    currentPlaying = null;
 
     openvideo.disabled = openvideo.innerText = '正在解析';
     const url = new URL('https://api.bilibili.com/x/web-interface/view');
@@ -84,8 +88,6 @@ entryinitapi.register(({ vid = null } = {}) => {
 });
 
 
-let currentPlaying = null;
-
 videolist_content.addEventListener('click', async function (ev) {
     const vid = current_vid;
     const cid = (() => {
@@ -134,6 +136,7 @@ autoPlay.oninput = async () => {
 
 bxplay.onPlayEnded(function () {
     if (!autoPlay.checked) return;
+    if (!currentPlaying) return;
     globalThis.video_data.pages;
     for (let i = 0, l = globalThis.video_data.pages.length; i < l; ++i){
         if (globalThis.video_data.pages[i].cid == currentPlaying) {
