@@ -45,7 +45,9 @@ const data = {
             },
             set(value) {
                 this.video_progress_realvalue = value;
+                video.pause();
                 video.currentTime = value;
+                ticks.nextTick(() => video.play());
                 return true;
             }
         },
