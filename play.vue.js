@@ -29,6 +29,7 @@ const data = {
             isPaused: true,
             playData: {},
             appControlsActive: true,
+            last_videoloading_state: null,
 
         };
     },
@@ -45,9 +46,11 @@ const data = {
             },
             set(value) {
                 this.video_progress_realvalue = value;
-                video.pause();
-                video.currentTime = value;
-                ticks.nextTick(() => video.play());
+                if (Math.floor(video.currentTime) !== value) {
+                    video.pause();
+                    video.currentTime = value;
+                    ticks.nextTick(() => video.play());
+                }
                 return true;
             }
         },
@@ -156,8 +159,11 @@ const data = {
         },
         updateVideoTime() {
             this.video_progress_realvalue = video.currentTime;
+            this.videoloading(false);
         },
         videoloading(p) {
+            if (this.last_videoloading_state === p) return; // 忽略重复消息
+            this.last_videoloading_state = p;
             if (p) loadingApp.show();
             else loadingApp.hide();
         },
@@ -214,6 +220,7 @@ const data = {
                 video.append(source1);
                 video.load();
 
+                this.setVideoParamters();
                 setTimeout(() => ((video.currentTime = 0), bxplay.applyPlay()), 500);
 
                 ticks.add(this);
