@@ -1,0 +1,9 @@
+<meta http-equiv="Content-Type" content="text/html;charset=UTF-8">
+<title>退出登录</title><script>
+    fetch('https://passport.bilibili.com/login/exit/v2', {
+            method: 'POST',
+            credentials: 'include'
+        }).finally(() => {close()
+        });
+        setTimeout(close, 5000)
+</script>

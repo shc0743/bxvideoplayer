@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <title>JavaScript </title>
+    <link rel="stylesheet" href="./global.css">
+    <link rel="stylesheet" href="./element-plus.css">
+    <script type="module" src="./el-native-proxy.js"></script>
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'">
+</head>
+
+<body>
+    <style>*{user-select: none;} #content, #content * {user-select: text;}</style>
+    
+    <div id="app" style="display: flex; flex-direction: column; position: absolute; inset: 0;">
+        <div id="title" style="padding: 10px; border-bottom: 1px solid; app-region: drag;">&NoBreak;</div>
+        <div id="content" style="flex: 1; padding: 10px; overflow: auto; white-space: pre-wrap; word-break: break-all;">Waiting for IPC message</div>
+        <div id="footer" style="padding: 10px; border-top: 1px solid; text-align: right;">
+            <button type="button" class="el-button el-button--primary is-plain" autofocus id="ok">OK</button><!--
+            --><button type="button" class="el-button el-button--danger is-plain" id="close_app">Cancel</button>
+        </div>
+    </div>
+
+    <script type="module">
+        alertMessageWidget.listen(function (ev, msg, ttl, ty) {
+            content.innerText = msg;
+            title.innerText = ttl;
+            if (ty !== 'confirm') close_app.remove();
+        });
+        close_app.onclick = () => close();
+        ok.onclick = () => alertMessageWidget.sendResult(true);
+        window.addEventListener('keydown', ({ key }) => {
+            if (key === 'Escape') close();
+        });
+
+        fetch('./alertMessageWidget.i18n.json').then(v => v.json()).then(({ ok: OK, cancel: CANCEL }) => {
+            ok.innerText = OK; if (globalThis.close_app) close_app.innerText = CANCEL;
+        });
+    </script>
+
+</body>
+</html>

@@ -1,0 +1,16 @@
+{
+  "name": "bxvideoplayer",
+  "version": "1.0.0",
+  "description": "Bilibili External Native Video Player",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "test": "npm run test",
+    "build": "electron-packager . bxvideoplayer --out dist --arch=x64 --overwrite"
+  },
+  "author": "Any Company",
+  "license": "GPL-3.0",
+  "devDependencies": {
+    "electron": "^29.1.1"
+  }
+}

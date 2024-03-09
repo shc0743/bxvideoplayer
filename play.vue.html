@@ -1,0 +1,78 @@
+<video id="video"
+    @click="pauseOrPlay"
+    @pause="isPaused = true"
+    @play="isPaused = false"
+    @timeupdate="updateVideoTime"
+    @dblclick="toggleFullscreen"
+    @waiting="videoloading(true)"
+    @playing="videoloading(false)"
+    @ended="playEnded"
+></video>
+<!-- <header class="headerbar_container" data-autohide="false">
+    <div class="drag-region">&NoBreak;</div>
+    <header class="header-content"></header>
+</header> -->
+<div id="app-controls" :class="appControlsActive ? (['active']) : ([])">
+    <div class="app-controls app-controls--top" style="display: flex; justify-content: space-between;">
+        <div class="app-controls--left" style="flex: 1; display: flex; overflow: hidden; align-items: center;">
+            <div id="video_title" :title="video_information.title">{{video_information.title}}</div>
+            <div class="space-fill-available" style="width: 5em; display: inline-block; flex: 1">&NoBreak;</div>
+            <ElPopover placement="bottom" title="" :width="0" trigger="hover">
+                <template #reference>
+                    <ElButton text @click="showDetails()" style="margin-right: 1em;">详细信息</ElButton>
+                </template>
+                <ElButton @click="showUploader()">UP主: {{video_data2.owner?.name}} (mid: {{video_data2.owner?.mid}})</ElButton>
+                <ElButton>总时长: {{video_data2.duration}}</ElButton>
+                <ElButton>分区: {{video_data2.tname}}</ElButton>
+                <ElButton @click="showDetails(video_data2.desc)">查看简介</ElButton>
+                <ElButton @click="showVideoPic()">查看封面</ElButton>
+                <ElButton @click="showBiliLink()" @contextmenu="showBiliLink(true)">主站链接</ElButton>
+                <ElButton @click="showDetails()">查看详细信息</ElButton>
+            </ElPopover>
+        </div>
+        <div class="app-controls--right">
+
+        </div>
+    </div>
+    <div class="app-controls app-controls--bottom">
+        <div id="video-play-progress">
+            <ElSlider v-model="video_progress" :step="1" :min="0" :max="video_progress_total"
+                @pointerdown="ev => {ev.target.setPointerCapture(ev.pointerId);pauseOrPlay('pause')}" @pointerup="pauseOrPlay('play')" />
+            <!-- <div id="slider-b3a174b2-4cfe-4353-8dc0-00b450aa2806" class="slider-b3a174b2-4cfe-4353-8dc0-00b450aa2806">
+                <div class="thumb-b3a174b2-4cfe-4353-8dc0-00b450aa2806"></div>
+            </div> -->
+        </div>
+        <div id="video-play-controls">
+            <ElButton text style="margin-right: 0.5em;" @click="pauseOrPlay">{{isPaused ? '播放' : '暂停'}}</ElButton>
+            <TextEdit v-model="video_progress_text" style="width: revert;" />
+            <span>&nbsp;/&nbsp;</span>
+            <span>{{formatTimeParamter(video_progress_total)}}</span>
+            <span class="space-fill-available" style="flex: 1;">&NoBreak;</span>
+            <ElPopover placement="bottom" title="" :width="150" trigger="click">
+                <template #reference>
+                    <ElButton text>清晰度</ElButton>
+                </template>
+                <template v-if="playData?.support_formats?.[0]?.new_description">
+                    <div v-for="i in playData.support_formats">{{i.new_description}}</div>
+                </template>
+            </ElPopover>
+            <ElPopover placement="bottom" title="" :width="150" trigger="click">
+                <template #reference>
+                    <ElButton text>倍速</ElButton>
+                </template>
+                <ElSlider v-model="video_speed" vertical height="150px" :step="0.25" :min="0" :max="16" style="margin-top: 1em;" />
+                <span>{{video_speed}}x</span>
+            </ElPopover>
+            <ElButton text @click="openEntryWindow">选集</ElButton>
+            <ElPopover placement="bottom" title="" :width="0" trigger="click">
+                <template #reference>
+                    <ElButton text>音量</ElButton>
+                </template>
+                <ElSlider v-model="video_volume__composed" vertical height="150px" style="margin-top: 1em;" />
+                <!-- <span>{{video_volume__composed}}%</span> -->
+            </ElPopover>
+            <ElButton text @click="toggleFullscreen">{{isFullscreen ? '退出' : ''}}全屏</ElButton>
+            
+        </div>
+    </div>
+</div>

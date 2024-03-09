@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+    <meta charset="UTF-8" />
+    <title>bxvideoplayer</title>
+    <link rel="stylesheet" href="./global.css">
+    <link rel="stylesheet" href="./entry.css">
+    <link rel="stylesheet" href="./element-plus.css">
+    <script type="module" src="./el-native-proxy.js"></script>
+</head>
+
+<body>
+    
+    <div id="app">
+        <form class="flexible-view flexible-view-ltr" id="videoid_input">
+            <select id="vid_type"><option value="aid">aid</option><option value="bvid" selected>bvid</option></select>
+            <div class="flexible-fill-avaliable el-input el-input__wrapper" style="margin: 0 1em;">
+                <input type="text" id="vid" class="el-input__inner" autofocus required>
+            </div>
+            <button class="el-button el-button--primary is-plain" type="submit" id="openvideo">打开</button>
+            <button class="el-button is-disabled" type="button" id="openlogin" disabled>正在获取登录态</button>
+        </form>
+
+        <div class="flexible-view flexible-fill-avaliable" id="videolist" style="overflow: auto;">
+            <div class="flexible-view flexible-fill-avaliable overflow-x-none" id="videolist_content" style="margin: 10px 0; overflow: visible;"></div>
+        </div>
+        <div><label for="autoPlay">
+            <input type="checkbox" id="autoPlay">
+            <span>自动连播</span>
+        </label></div>
+
+        <div class="flexible-view flexible-view-ltr flexible-space-between" style="margin-top: 0.5em; padding-top: 0.5em; border-top: 1px solid;">
+            <div class="flexible-view flexible-view-ltr">
+                <button type="button" class="el-button" hidden>批量下载</button>
+                <button type="button" class="el-button" hidden>下载内容</button>
+            </div>
+            <div class="flexible-view flexible-view-ltr">
+                <button type="button" class="el-button el-button--danger is-plain" id="close_app">关掉</button>
+            </div>
+        </div>
+        
+    </div>
+
+    <script type="module" src="./entry.js"></script>
+
+</body>
+</html>
