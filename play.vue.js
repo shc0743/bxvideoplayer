@@ -246,7 +246,7 @@ const data = {
         globalThis.instance_ = this;
         ticks.ontick(this.ontick);
 
-        window.addEventListener('pointermove', this.onpointermove);
+        document.body.addEventListener('pointermove', this.onpointermove);
         window.addEventListener('keydown', this.onkeydown);
 
     },
@@ -254,7 +254,7 @@ const data = {
     unmounted() {
         ticks.cancel_ontick(this.ontick);
 
-        window.removeEventListener('pointermove', this.onpointermove);
+        document.body.removeEventListener('pointermove', this.onpointermove);
         window.removeEventListener('keydown', this.onkeydown);
 
     },
