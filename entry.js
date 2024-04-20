@@ -1,9 +1,14 @@
 import { ElMessage } from "./3p/element-plus/index.full.mjs.js";
 
-close_app.onclick = async () => {
-    if (!await myconfirm('确定要关掉?')) return;
-    window.close();
-};
+let rcc = false;
+close_app.onclick = () => ((rcc = true), close());
+// setTimeout(() => window.addEventListener('beforeunload', (ev) => {
+//     if (rcc) return;
+//     ev.returnValue = false;
+//     ev.preventDefault();
+//     myconfirm('确定要关掉?').then(r => (rcc = r) && close());
+//     return false;
+// }), 1000);
 
 
 openlogin.onclick = () => {
@@ -33,7 +38,20 @@ videoid_input.addEventListener('submit', ev => {
 
     openvideo.disabled = openvideo.innerText = '正在解析';
     const url = new URL('https://api.bilibili.com/x/web-interface/view');
-    const vid = document.getElementById('vid').value;
+    const vid = (function () {
+        const vid = document.getElementById('vid').value;
+        if (!vid.startsWith('http')) return vid;
+        const url = new URL(vid)
+        const sp_bvid = url.searchParams.get('bvid');
+        const sp_aid = url.searchParams.get('aid');
+        if (sp_bvid) { vid_type.value = 'bvid'; return sp_bvid; }
+        if (sp_aid) { return sp_aid; }
+        const url_array = url.pathname.split('/').filter(el => !!el);
+        for (let i = 0, l = url_array.length; i < l; ++i) {
+            if (url_array[i] === 'video' && i + 1 < l) { if (/^BV/i.test(url_array[i + 1])) vid_type.value = 'bvid'; return(url_array[i + 1]); }
+            if (url_array[i].startsWith('BV')) { return(url_array[i], true); }
+        }
+    })();
     url.searchParams.set(vid_type.value, vid);
     webrequestapi.get(url.href).then(v => JSON.parse(v)).then(data => {
         globalThis.current_vid = vid;
@@ -85,8 +103,8 @@ videoid_input.addEventListener('submit', ev => {
 });
 
 
-entryinitapi.register(({ vid = null } = {}) => {
-    console.log('vid=', vid);
+entryinitapi.register(({ vid = null, title = null } = {}) => {
+    console.info('[entryinitapi]', 'vid=', vid);
 
     if (typeof vid === 'string') {
         if (vid.startsWith('av')) {
@@ -99,6 +117,8 @@ entryinitapi.register(({ vid = null } = {}) => {
             videoid_input.dispatchEvent(new SubmitEvent('submit'));
         }
     }
+
+    if (title) document.title = title;
 });
 
 

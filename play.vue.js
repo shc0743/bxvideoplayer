@@ -47,9 +47,9 @@ const data = {
             set(value) {
                 this.video_progress_realvalue = value;
                 if (Math.floor(video.currentTime) !== value) {
-                    video.pause();
+                    // video.pause();
                     video.currentTime = value;
-                    ticks.nextTick(() => video.play());
+                    // ticks.nextTick(() => video.play());
                 }
                 return true;
             }
@@ -175,10 +175,14 @@ const data = {
             const key = ev.key;
             switch (key) {
                 case 'ArrowLeft':
+                    video.pause();
                     this.video_progress = Math.max(0, this.video_progress - 5);
+                    ticks.nextTick(() => video.play());
                     break;
                 case 'ArrowRight':
+                    video.pause();
                     this.video_progress = Math.min(this.video_progress_total, this.video_progress + 5);
+                    ticks.nextTick(() => video.play());
                     break;
                 case ' ':
                     this.pauseOrPlay();
@@ -221,7 +225,7 @@ const data = {
                 video.load();
 
                 this.setVideoParamters();
-                setTimeout(() => ((video.currentTime = 0), bxplay.applyPlay()), 500);
+                setTimeout(() => ((video.currentTime = 0), video.play()), 500);
 
                 ticks.add(this);
             } catch (error) {
@@ -265,6 +269,9 @@ const data = {
         },
         video_volume() {
             this.setVideoParamters();
+        },
+        'video_information.title'() {
+            document.title = this.video_information.title;  
         },
 
     },

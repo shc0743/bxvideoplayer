@@ -4,10 +4,12 @@ const path = require('path');
 const url = require('url');
 const fs = require('fs');
 const minimist = require('minimist');
+const USER_AGENT_CHROME = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36';
 
 
 
 const args = minimist(process.argv);
+let userAgent = args.userAgent || USER_AGENT_CHROME || null; // default chrome ua to avoid Bilibili detection
 
 
 
@@ -24,15 +26,18 @@ const createEntryWindow = async () => {
     globalThis.entryWindow = win;
     
     await win.loadFile('entry.html');
+    if (userAgent) win.webContents.setUserAgent(userAgent);
 
     win.on('closed', () => app.quit());
 }
 
 const createOrLoadPlayWindow = async (vid, cid) => {
     if (globalThis.playWindow) {
-        globalThis.playWindow.vid = vid;
-        globalThis.playWindow.cid = cid;
-        globalThis.playWindow.webContents.send('play_window.load_info');
+        if (!(globalThis.playWindow.vid === vid && globalThis.playWindow.cid === cid)) {
+            globalThis.playWindow.vid = vid;
+            globalThis.playWindow.cid = cid;
+            globalThis.playWindow.webContents.send('play_window.load_info');
+        }
         globalThis.playWindow.focus();
         return globalThis.playWindow;
     }
@@ -52,7 +57,9 @@ const createOrLoadPlayWindow = async (vid, cid) => {
 
     nativeTheme.themeSource = 'dark';
 
-    await win.loadFile('play.html');
+    const p = win.loadFile('play.html');
+    if (userAgent) win.webContents.setUserAgent(userAgent);
+    await p;
 
     win.on('closed', () => ((globalThis.playWindow = null), (nativeTheme.themeSource = 'light')));
     // win.webContents.send('play_window.load_info');
@@ -94,6 +101,26 @@ const createLoginWindow = function createLoginWindow() {
         
         });
     });
+}
+
+
+const bxapiWebView = async function (url) {
+    const win = new BrowserWindow({
+        width: 1024,
+        height: 768,
+        autoHideMenuBar: true,
+        webPreferences: {
+            autoplayPolicy: 'document-user-activation-required'
+        }
+    });
+    // console.log(ev.senderFrame);
+    const promise = win.loadURL(url)
+    win.webContents.setWindowOpenHandler((details) => {
+        bxapiWebView(details.url)
+        return { action: 'deny' };
+    });
+    await promise
+    return win;
 }
 
 
@@ -153,7 +180,9 @@ const ipcHandlers = {
         let vid = args.video;
         if (!vid) vid = process.argv[1];
         if (vid === '.') vid = process.argv[2];
-        return { vid };
+        if (vid.startsWith('-')) vid = args.video; // don't parse options as video
+        let title = args.title || null;
+        return { vid, title };
     },
     'alertMessageWidget': (ev, message, title, type) => new Promise(async resolve => {
         const win = new BrowserWindow({
@@ -180,17 +209,8 @@ const ipcHandlers = {
         createOrLoadPlayWindow(vid, cid);
     },
     async 'bxapi.web'(ev, url) {
-        const win = new BrowserWindow({
-            width: 1024,
-            height: 768,
-            autoHideMenuBar: true,
-            webPreferences: {
-                autoplayPolicy: 'document-user-activation-required'
-            }
-        });
-        // console.log(ev.senderFrame);
-        await win.loadURL(url)
-        return true;
+        await bxapiWebView(url)
+        return true
     },
     async 'bxplay.getif'() {
         return {
@@ -212,9 +232,9 @@ const ipcHandlers = {
     'bxapi.switchToEntry'() {
         globalThis.entryWindow.focus();
     },
-    'bxplay.applyPlay'() {
-        globalThis.playWindow.webContents.executeJavaScript(`document.getElementById('video').play()`, true);
-    },
+    // 'bxplay.applyPlay'() {
+    //     globalThis.playWindow.webContents.executeJavaScript(`document.getElementById('video').play()`, true);
+    // },
     'bxplay.playEnded'() {
         globalThis.entryWindow.webContents.send('bxplay.playEnded');
     },
