@@ -1,6 +1,6 @@
 {
   "name": "bxvideoplayer",
-  "version": "1.1.6",
+  "version": "1.1.7",
   "description": "Bilibili External Native Video Player",
   "main": "main.js",
   "scripts": {

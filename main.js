@@ -57,9 +57,9 @@ const createOrLoadPlayWindow = async (vid, cid) => {
 
     nativeTheme.themeSource = 'dark';
 
-    const p = win.loadFile('play.html');
+    await win.loadFile('play.html');
     if (userAgent) win.webContents.setUserAgent(userAgent);
-    await p;
+    // await p;
 
     win.on('closed', () => ((globalThis.playWindow = null), (nativeTheme.themeSource = 'light')));
     // win.webContents.send('play_window.load_info');
