@@ -11,7 +11,7 @@
   "author": "Any Company",
   "license": "GPL-3.0",
   "devDependencies": {
-    "electron": "^37.2.1"
+    "electron": "^37.3.1"
   },
   "dependencies": {
     "minimist": "^1.2.8"
